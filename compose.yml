@@ -49,7 +49,7 @@ services:
     container_name: mqtt-connector
     restart: unless-stopped
     build:
-      dockerfile: ./mqtt-connector-docker/Dockerfile
+      dockerfile: ./dockerfiles/Dockerfile
       context: ./
     depends_on:
       - kafka
