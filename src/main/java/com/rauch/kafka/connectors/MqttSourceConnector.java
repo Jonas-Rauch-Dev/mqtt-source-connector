@@ -10,25 +10,27 @@ import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.rauch.kafka.connectors.util.Version;
+
 public class MqttSourceConnector extends SourceConnector {
 
     private final static Logger logger = LogManager.getLogger(MqttSourceConnectorTask.class.getName());
+    private Map<String, String> props;
 
     @Override
     public String version() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'version'");
+        return Version.getVersion();
     }
 
     @Override
     public ConfigDef config() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'config'");
+        return MqttSourceConnectorConfig.DEFINITION;
     }
 
     @Override
     public void start(Map<String, String> props) {
         logger.info("Starting Connector...");
+        this.props = props;
     }
 
     @Override
@@ -44,8 +46,7 @@ public class MqttSourceConnector extends SourceConnector {
     @Override
     public List<Map<String, String>> taskConfigs(int maxTasks) {
         ArrayList<Map<String, String>> configs = new ArrayList<>();
-
+        configs.add(props);
         return configs;
     }
-
 }
