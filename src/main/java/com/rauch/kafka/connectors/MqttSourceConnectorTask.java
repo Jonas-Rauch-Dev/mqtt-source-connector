@@ -29,6 +29,10 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
     private String mqttBrokerTopic;
     private String kafkaTopic;
 
+    // ####################################
+    // # SourceTask Abstract Method Impls #
+    // ####################################
+
     @Override
     public String version() {
         return Version.getVersion();
@@ -126,9 +130,19 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
         }
     }
 
+    // ######################
+    // # MqttCallback Impls #
+    // ######################
+
     @Override
     public void connectionLost(Throwable cause) {
         logger.warn("MqttClient lost connection to the broker!");
+
+        try {
+            mqttClient.reconnect();
+        } catch (MqttException e) {
+            logger.error("Could not reconnect mqtt client with error: {}", e);
+        }
     }
 
     @Override
