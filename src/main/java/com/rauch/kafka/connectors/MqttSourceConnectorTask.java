@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -15,11 +13,14 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.rauch.kafka.connectors.util.Version;
 
 public class MqttSourceConnectorTask extends SourceTask implements MqttCallback {
 
-    private static final Logger logger = LogManager.getLogger(MqttSourceConnectorTask.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(MqttSourceConnectorTask.class.getName());
 
     private MqttSourceConnectorConfig config;
     private MqttClient mqttClient;
@@ -53,6 +54,7 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
 
         // Configure the mqtt connection options
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
         mqttConnectOptions.setServerURIs(new String[] { mqttBrokerUri });
         mqttConnectOptions.setUserName(mqttUser);
         mqttConnectOptions.setPassword(mqttPassword.toCharArray());
@@ -92,6 +94,8 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
             e.printStackTrace();
             return;
         }
+
+        logger.info("MqttClient Started Succesfully!");
 
     }
 

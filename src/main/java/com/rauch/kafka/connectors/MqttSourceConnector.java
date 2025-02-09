@@ -7,14 +7,15 @@ import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.source.SourceConnector;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rauch.kafka.connectors.util.Version;
 
 public class MqttSourceConnector extends SourceConnector {
 
-    private final static Logger logger = LogManager.getLogger(MqttSourceConnectorTask.class.getName());
+    private final static Logger logger = LoggerFactory.getLogger(MqttSourceConnectorTask.class);
     private Map<String, String> props;
 
     @Override

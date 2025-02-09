@@ -3,12 +3,12 @@ package com.rauch.kafka.connectors.util;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Version {
 
-    private static final Logger logger = LogManager.getLogger(Version.class);
+    private static final Logger logger = LoggerFactory.getLogger(Version.class);
     private static final String props_path = "/application.properties";
     private static String version = "?";
 
