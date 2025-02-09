@@ -1,0 +1,7 @@
+FROM python:3.12.9-slim
+
+RUN pip install --no-cache-dir paho-mqtt
+
+COPY scripts/publisher.py /app/publisher.py
+
+ENTRYPOINT [ "python", "-u", "/app/publisher.py" ]
