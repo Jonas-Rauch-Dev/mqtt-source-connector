@@ -18,6 +18,7 @@ public class MqttSourceConnectorConfig extends AbstractConfig {
 
         // MQTT CLIENT CONFIG PROPERTIES
         public final static String MQTT_CLIENT_FILE_PERSISTENCE_DIRECTORY = "mqtt.client.file.persistence.directory";
+        public final static String MQTT_CLIENT_QOS = "mqtt.client.qos";
 
         // KAFKA CONFIG PROPERTIES
         public final static String KAFKA_TOPIC = "kafka.topic";
@@ -54,6 +55,12 @@ public class MqttSourceConnectorConfig extends AbstractConfig {
                                         null,
                                         Importance.MEDIUM,
                                         "The password for the given mqtt user (only applicable for password based auth).")
+                        .define(
+                                        MQTT_CLIENT_QOS,
+                                        Type.INT,
+                                        0,
+                                        Importance.MEDIUM,
+                                        "The quality of service (QoS) used by mqtt client for received messages (0 (at most once), 1 (at least once) or 2 (exactly once))(Default: 0)")
                         // MQTT CLIENT DEFINITIONs
                         .define(
                                         MQTT_CLIENT_FILE_PERSISTENCE_DIRECTORY,

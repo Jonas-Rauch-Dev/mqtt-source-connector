@@ -54,6 +54,7 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
         String mqttBrokerPassword = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_PASSWORD);
         String mqttClientFilePersistanceDirectory = config
                 .getString(MqttSourceConnectorConfig.MQTT_CLIENT_FILE_PERSISTENCE_DIRECTORY);
+        int mqttClientQoS = config.getInt(MqttSourceConnectorConfig.MQTT_CLIENT_QOS);
 
         // Configure the mqtt connection options
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
@@ -94,7 +95,7 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
 
         // Subscribe to the given mqtt topic
         try {
-            mqttClient.subscribe(mqttBrokerTopic, 0);
+            mqttClient.subscribe(mqttBrokerTopic, mqttClientQoS);
         } catch (MqttException e) {
             logger.error("MqttClient failed to subscribe to topic '{}' with error: {}", mqttBrokerTopic, e);
             return;
