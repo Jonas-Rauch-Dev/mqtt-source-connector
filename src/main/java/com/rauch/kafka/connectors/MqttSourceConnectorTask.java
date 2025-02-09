@@ -1,22 +1,23 @@
 package com.rauch.kafka.connectors;
 
+import com.rauch.kafka.connectors.util.Version;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.rauch.kafka.connectors.util.Version;
 
 public class MqttSourceConnectorTask extends SourceTask implements MqttCallback {
 
@@ -49,19 +50,24 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
         // Get mqtt broker specific properties required for client init
         String mqttBrokerUri = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_URI);
         String mqttBrokerClientId = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_CLIENT_ID);
-        String mqttUser = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_USER);
-        String mqttPassword = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_PASSWORD);
+        String mqttBrokerUser = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_USER);
+        String mqttBrokerPassword = config.getString(MqttSourceConnectorConfig.MQTT_BROKER_PASSWORD);
+        String mqttClientFilePersistanceDirectory = config
+                .getString(MqttSourceConnectorConfig.MQTT_CLIENT_FILE_PERSISTENCE_DIRECTORY);
 
         // Configure the mqtt connection options
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
         mqttConnectOptions.setServerURIs(new String[] { mqttBrokerUri });
-        mqttConnectOptions.setUserName(mqttUser);
-        mqttConnectOptions.setPassword(mqttPassword.toCharArray());
+        mqttConnectOptions.setUserName(mqttBrokerUser);
+        mqttConnectOptions.setPassword(mqttBrokerPassword.toCharArray());
 
         // Create the Mqtt Client
         try {
-            mqttClient = new MqttClient(mqttBrokerUri, mqttBrokerClientId);
+            mqttClient = new MqttClient(
+                    mqttBrokerUri,
+                    mqttBrokerClientId,
+                    new MqttDefaultFilePersistence(mqttClientFilePersistanceDirectory));
         } catch (MqttException e) {
             logger.error("Failed to create MqttClient with error: {}", e);
             e.printStackTrace();
@@ -91,7 +97,6 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
             mqttClient.subscribe(mqttBrokerTopic, 0);
         } catch (MqttException e) {
             logger.error("MqttClient failed to subscribe to topic '{}' with error: {}", mqttBrokerTopic, e);
-            e.printStackTrace();
             return;
         }
 
@@ -102,11 +107,20 @@ public class MqttSourceConnectorTask extends SourceTask implements MqttCallback 
     @Override
     public synchronized void stop() {
         if (mqttClient != null) {
+            // Try to disconnect if there is a connection
+            if (mqttClient.isConnected()) {
+                try {
+                    mqttClient.disconnect();
+                } catch (MqttException e) {
+                    logger.warn("Failed to disconnect the MqttClient: {}", e);
+                }
+            }
+
+            // Try to close the client
             try {
                 mqttClient.close();
             } catch (MqttException e) {
                 logger.warn("Failed to close the MqttClient: {}", e);
-                e.printStackTrace();
             }
         }
     }
